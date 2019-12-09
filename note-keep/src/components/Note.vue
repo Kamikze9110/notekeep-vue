@@ -63,12 +63,12 @@
   <v-row justify="center">
     <v-dialog v-model="dialogConfirm" persistent max-width="290">
       <v-card>
-        <v-card-title class="headline">Are you sure you want to delete?</v-card-title>
-        <v-card-text></v-card-text>
+        <v-card-title class="headline">Alert</v-card-title>
+        <v-card-text>Are you sure you want to delete?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="dialogConfirm = false">Disagree</v-btn>
-          <v-btn color="green darken-1" text @click="deleteItem">Agree</v-btn>
+          <v-btn color="green darken-1" text @click="dialogConfirm = false">NO</v-btn>
+          <v-btn color="green darken-1" text @click="deleteItem">YES</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
