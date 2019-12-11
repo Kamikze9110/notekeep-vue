@@ -21,7 +21,7 @@
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark class="mb-2" v-on="on">New Note</v-btn>
+            <v-btn color="primary" dark class="mb-2" v-on="on" @click="prepareNew">New Note</v-btn>
           </template>
           <v-card>
             <v-card-title>
@@ -61,7 +61,7 @@
         class="mr-2"
         @click="viewTasks(item)"
       >
-        edit
+        show
       </v-icon> 
       <v-icon
         small
@@ -81,6 +81,20 @@
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="dialogConfirm = false">NO</v-btn>
           <v-btn color="green darken-1" text @click="deleteItem">YES</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-row>
+
+
+  <v-row justify="center">
+    <v-dialog v-model="dialogError" persistent max-width="290">
+      <v-card>
+        <v-card-title class="headline">Error</v-card-title>
+        <v-card-text>{{ errorMsg }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="dialogError = false">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -137,7 +151,7 @@
               <v-checkbox
                 v-model="task.complete"
                 color="primary"
-                @click="updateTask(task , active)"
+                @click="updateTaskToggle(task , active)"
               ></v-checkbox>
             </v-list-item-action>
 
@@ -177,6 +191,8 @@ export default {
    dialog: false,
    dialogConfirm: false,
    dialogChecklist: false,
+   dialogError: false,
+   errorMsg: '',
    temporalTasks: [],
     editedNote: {
       id: null,
@@ -259,7 +275,10 @@ export default {
     this.editedItem = Object.assign({}, note)
     this.dialog = true
   },
-
+  prepareNew () {
+    this.editedIndex = -1
+    this.editedItem = Object.assign({}, this.defaultItem)
+  },
   addTaskItem () {
     this.temporalTask.description = this.editedTask.description
     this.temporalTask.complete = true
@@ -301,8 +320,13 @@ export default {
           this.editedNote.description = note.description
       })
     } else {
-      this.editedNote.description = this.editedItem.description
-      this.$store.dispatch('SAVE_NOTE', { note: this.editedNote })
+      if(this.editedItem.description == ''){
+        this.errorMsg = 'The field can´t be empty'
+        this.dialogError = true
+      }else{
+        this.editedNote.description = this.editedItem.description
+        this.$store.dispatch('SAVE_NOTE', { note: this.editedNote })
+      }
     }
     this.close()
   },
@@ -312,21 +336,15 @@ export default {
     this.temporalTask.complete = false
   },
   saveTask () {
-    if (this.editedTaskIndex > -1) {
-     /* this.$store.dispatch('UPDATE_NOTE', { note: this.editedItem, index: this.editedIndex })
-        .then(note => {
-          this.editedNote.description = note.description
-      })*/
-      this.$store.dispatch('UPDATE_TASK' , {note: this.editItem, task: this.editedTask})
-    } else {
-      //this.editedItem.tasks = this.temporalTasks
-      //this.editedNote.description = this.temporalTasks[0].description + this.temporalTasks.length + 'task more'
-      //this.$store.dispatch('SAVE_NOTE', { note: this.editedNote })
-      //this.reInitTask()
-      this.$store.dispatch('SAVE_TASK', { note: this.editedItem, task: this.editedTask })
-    }
+      if(this.editedTask.description == ''){
+        this.errorMsg = 'The field can´t be empty'
+        this.dialogError = true
+      }else{
+        this.$store.dispatch('SAVE_TASK', { note: this.editedItem, task: this.editedTask })
+        this.editedTask = {}
+      }
   },
-  updateTask (task , toggle) {
+  updateTaskToggle (task , toggle) {
     task.complete = toggle
     this.$store.dispatch('UPDATE_TASK' , {note: this.editedItem, task: task})
   },

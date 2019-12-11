@@ -58,7 +58,7 @@ export default new Vuex.Store({
     UPDATE_TASK: ({ commit } , {note , task}) => {
       return axios.put(`${restUrl}/${noteServiceUrl}/${note.id}/${taskServiceUrl}/${task.id}` , task)
       .then(response => {
-        commit('UPDATE_TASK', { task: response.data, noteId: note.id })
+        commit('CHANGE_TASK', { taskId: response.data, noteId: note.id })
         return response.data
       }).catch(error => {
         // eslint-disable-next-line
@@ -99,7 +99,7 @@ export default new Vuex.Store({
     REMOVE_NOTE: (state, {index}) => {
       state.notes.splice(index, 1);
     },
-    UPDATE_TASK: (state , {taskId, noteId}) => {
+    CHANGE_TASK: (state , {taskId, noteId}) => {
       let indexNote = state.notes.findIndex( note => note.id === noteId )
       let indexTask = state.notes[indexNote].tasks.findIndex( task => task.id === taskId )
       let task = Object.assign({}, state.notes[indexNote].tasks[indexTask])
@@ -109,8 +109,6 @@ export default new Vuex.Store({
       let indexNote = state.notes.findIndex( note => note.id === noteId )
       let note = Object.assign({}, state.notes[indexNote])
       note.tasks.push(task)
-      //state.notes[indexNote].splice(indexNote , 1)
-      //state.notes[indexNote] = note
       state.notes[indexNote] = Object.assign({}, note)
     },
     DELETE_TASK: (state , {noteId, taskId}) => {
